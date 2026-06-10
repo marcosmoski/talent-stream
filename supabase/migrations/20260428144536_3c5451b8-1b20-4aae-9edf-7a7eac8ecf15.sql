@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.enforce_primeit_domain() FROM PUBLIC, anon, authenticated;

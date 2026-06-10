@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* PrimeIT × Prime Group hybrid — clean editorial base, vibrant accent */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 9%;
+
+    /* Prime Group navy */
+    --primary: 222 47% 11%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    /* PrimeIT × Prime Group signature accent — green */
+    --accent: 152 65% 38%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Secondary accent — deeper green */
+    --brand-green: 152 65% 38%;
+    --brand-green-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 65% 38%;
+    --warning: 38 95% 55%;
+
+    --border: 220 14% 91%;
+    --input: 220 14% 91%;
+    --ring: 152 65% 38%;
+
+    --radius: 0.75rem;
+
+    /* Light surfaces for the live board */
+    --tv-bg: 0 0% 100%;
+    --tv-surface: 0 0% 100%;
+    --tv-surface-2: 210 40% 97%;
+    --tv-foreground: 222 47% 9%;
+    --tv-muted: 215 16% 47%;
+    --tv-border: 220 14% 91%;
+
+    --gradient-accent: linear-gradient(135deg, hsl(152 65% 42%), hsl(160 70% 35%));
+    --gradient-brand: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(222 47% 16%) 100%);
+    --gradient-tv: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 100%);
+    --shadow-card: 0 1px 2px hsl(222 47% 11% / 0.04), 0 8px 24px -8px hsl(222 47% 11% / 0.08);
+    --shadow-elevated: 0 10px 40px -10px hsl(152 65% 38% / 0.25);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 0 0% 98%;
+    --card: 222 40% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 222 40% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 35% 14%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 222 35% 14%;
+    --muted-foreground: 220 15% 70%;
+    --accent: 152 65% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 222 30% 20%;
+    --input: 222 30% 20%;
+    --ring: 152 65% 42%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .bg-gradient-accent { background: var(--gradient-accent); }
+  .bg-gradient-brand { background: var(--gradient-brand); }
+  .bg-gradient-tv { background: var(--gradient-tv); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+
+  /* TV ticker scroll */
+  @keyframes scroll-y {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+  .animate-scroll-y {
+    animation: scroll-y var(--scroll-duration, 60s) linear infinite;
+  }
+
+  @keyframes scroll-x {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-scroll-x {
+    animation: scroll-x var(--scroll-duration, 50s) linear infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+  .animate-pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up { animation: fade-in-up 0.4s ease-out; }
+}
+
