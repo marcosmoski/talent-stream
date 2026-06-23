@@ -117,7 +117,7 @@ export function CandidateFormDialog({ open, onOpenChange, bus, candidate, onSave
         <DialogHeader>
           <DialogTitle>{candidate ? "Edit candidate" : "Add Top Candidate"}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2 overflow-y-auto pr-1 -mr-1 flex-1 min-h-0">
+        <div className="grid gap-4 sm:grid-cols-2 overflow-y-auto px-1 -mx-1 flex-1 min-h-0">
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Business Unit</Label>
             <Select value={form.business_unit_id || undefined} onValueChange={(v) => setForm({ ...form, business_unit_id: v })}>
