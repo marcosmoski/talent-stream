@@ -141,7 +141,7 @@ export default function Reports() {
   }
 
   const familyBuckets = useMemo(
-    () => bucketize((j) => [familyFor([j.role_name, ...(j.tech_stack ?? [])].join(" ")).label]),
+    () => bucketize((j) => [familyFor(j.role_name, j.tech_stack ?? []).label]),
     [filteredJobs]
   );
   const techBuckets = useMemo(

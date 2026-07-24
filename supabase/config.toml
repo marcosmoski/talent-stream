@@ -1,1 +1,6 @@
-project_id = "brrzqnxowheidqlgohkx"
+project_id = "ycumdomuynmflhhwcqcq"
+
+# Invite flow: the function verifies the caller's JWT itself (and checks the
+# admin role), so keep the platform gateway JWT check on too.
+[functions.invite-user]
+verify_jwt = true

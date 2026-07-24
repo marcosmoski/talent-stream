@@ -16,13 +16,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { JobFormDialog } from "@/components/JobFormDialog";
 import { CandidateFormDialog } from "@/components/CandidateFormDialog";
+import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { PrimeLogo } from "@/components/PrimeLogo";
-import { Plus, Pencil, X, LogOut, Loader2, ExternalLink, Search } from "lucide-react";
+import { useInvitations, useRevokeInvitation } from "@/hooks/queries";
+import { Plus, Pencil, X, LogOut, Loader2, ExternalLink, Search, UserPlus, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Admin() {
-  const { user, loading, isStaff, signOut } = useAuth();
+  const { user, loading, isStaff, isAdmin, signOut } = useAuth();
   const nav = useNavigate();
   const { data: businessUnits = [] } = useBusinessUnits();
   const { data: allJobs = [] } = useJobs();
@@ -37,6 +39,9 @@ export default function Admin() {
   const [candOpen, setCandOpen] = useState(false);
   const [editCand, setEditCand] = useState<Candidate | null>(null);
   const [notesView, setNotesView] = useState<{ title: string; subtitle?: string; notes: string } | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const { data: invitations = [] } = useInvitations({ enabled: isAdmin });
+  const revokeInvite = useRevokeInvitation();
 
   useEffect(() => { document.title = "Admin · PrimeIT"; }, []);
 
@@ -131,6 +136,7 @@ export default function Admin() {
           <TabsList>
             <TabsTrigger value="jobs">Opportunities <Badge variant="secondary" className="ml-2">{jobs.length}</Badge></TabsTrigger>
             <TabsTrigger value="cands">Top Candidates <Badge variant="secondary" className="ml-2">{cands.length}</Badge></TabsTrigger>
+            {isAdmin && <TabsTrigger value="team">Team <Badge variant="secondary" className="ml-2">{invitations.length}</Badge></TabsTrigger>}
           </TabsList>
 
           <TabsContent value="jobs" className="mt-6">
@@ -285,11 +291,84 @@ export default function Admin() {
               )}
             </div>
           </TabsContent>
+
+          {isAdmin && (
+            <TabsContent value="team" className="mt-6">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">
+                  Invite colleagues and choose their access level. Invites go to <span className="font-medium text-foreground">@primeit.pt</span> emails.
+                </p>
+                <Button onClick={() => setInviteOpen(true)} className="bg-accent text-accent-foreground hover:bg-accent/90">
+                  <UserPlus className="mr-1.5 h-4 w-4" /> Invite member
+                </Button>
+              </div>
+
+              <div className="overflow-hidden rounded-xl border border-border bg-card shadow-card">
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/50 text-xs uppercase tracking-wider text-muted-foreground">
+                    <tr>
+                      <th className="px-4 py-3 text-left">Email</th>
+                      <th className="px-4 py-3 text-left">Role</th>
+                      <th className="px-4 py-3 text-left">Status</th>
+                      <th className="px-4 py-3 text-left">Invited</th>
+                      <th className="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {invitations.map((inv) => (
+                      <tr key={inv.id} className="hover:bg-secondary/30">
+                        <td className="px-4 py-3 font-medium">
+                          <span className="inline-flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" />{inv.email}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge variant={inv.role === "admin" ? "default" : "secondary"} className="capitalize">{inv.role}</Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={
+                            inv.status === "accepted" ? "text-green-600" :
+                            inv.status === "revoked" ? "text-muted-foreground line-through" :
+                            "text-amber-600"
+                          }>
+                            {inv.status === "pending" ? "Pending" : inv.status === "accepted" ? "Accepted" : "Revoked"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(inv.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {inv.status === "pending" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={revokeInvite.isPending}
+                              onClick={() => {
+                                if (!confirm(`Revoke the invite for ${inv.email}?`)) return;
+                                revokeInvite.mutate(inv.id, {
+                                  onSuccess: () => toast.success("Invite revoked"),
+                                  onError: (err) => toast.error(err.message),
+                                });
+                              }}
+                            >
+                              Revoke
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {invitations.length === 0 && (
+                      <tr><td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">No invitations yet. Click "Invite member" to add someone.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </main>
 
       <JobFormDialog open={jobOpen} onOpenChange={setJobOpen} bus={bus} job={editJob} />
       <CandidateFormDialog open={candOpen} onOpenChange={setCandOpen} bus={bus} candidate={editCand} />
+      {isAdmin && <InviteUserDialog open={inviteOpen} onOpenChange={setInviteOpen} />}
 
       <Dialog open={!!notesView} onOpenChange={(o) => !o && setNotesView(null)}>
         <DialogContent className="max-w-xl max-h-[80vh] flex flex-col">

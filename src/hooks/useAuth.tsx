@@ -9,6 +9,7 @@ interface AuthCtx {
   session: Session | null;
   roles: Role[];
   isStaff: boolean;
+  isAdmin: boolean;
   loading: boolean;
   rolesLoading: boolean;
   roleError: string | null;
@@ -123,9 +124,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const isStaff = roles.length > 0;
+  const isAdmin = roles.includes("admin");
 
   return (
-    <AuthContext.Provider value={{ user, session, roles, isStaff, loading, rolesLoading, roleError, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, roles, isStaff, isAdmin, loading, rolesLoading, roleError, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -82,7 +82,55 @@ export const ROLE_FAMILIES: RoleFamily[] = [
   },
 ];
 
-export function familyFor(text: string): { key: string; label: string } {
-  const f = ROLE_FAMILIES.find((rf) => rf.match(text));
-  return f ? { key: f.key, label: f.label } : { key: "other", label: "Other roles" };
+const FULLSTACK = { key: "fullstack", label: "Full Stack" };
+const OTHER = { key: "other", label: "Other roles" };
+
+// Backend families that, combined with a frontend signal, make a role "full stack".
+const BACKEND_KEYS = new Set(["backend-java", "backend-dotnet", "backend-node"]);
+
+function matches(text: string): RoleFamily[] {
+  return ROLE_FAMILIES.filter((rf) => rf.match(text));
+}
+
+function hasFrontend(fams: RoleFamily[]) {
+  return fams.some((f) => f.key === "frontend");
+}
+function hasBackend(fams: RoleFamily[]) {
+  return fams.some((f) => BACKEND_KEYS.has(f.key));
+}
+
+function pick(fams: RoleFamily[]) {
+  // ROLE_FAMILIES is authored in priority order; the first match wins the tie.
+  const f = fams[0];
+  return { key: f.key, label: f.label };
+}
+
+// Classify a role into a family. The **title is authoritative** — the tech stack
+// only decides when the title is generic, or promotes a role to Full Stack.
+//
+// This fixes the case where a "Java Lead Developer" carrying React in its stack
+// was bucketed as Frontend/React just because "react" appeared anywhere in the
+// blob. The title says Java, so it is Backend · Java.
+export function familyFor(
+  title: string,
+  stack: string[] = [],
+): { key: string; label: string } {
+  // Explicit full-stack in the title always wins.
+  if (/full[- ]?stack/i.test(title)) return FULLSTACK;
+
+  const titleHits = matches(title);
+  if (titleHits.length > 0) {
+    // A title that names both a frontend and a backend discipline is full stack.
+    if (hasFrontend(titleHits) && hasBackend(titleHits)) return FULLSTACK;
+    return pick(titleHits);
+  }
+
+  // Generic title (e.g. "Software Engineer", "Consultant") — fall back to stack.
+  const stackHits = matches(stack.join(" "));
+  if (stackHits.length > 0) {
+    if (hasFrontend(stackHits) && hasBackend(stackHits)) return FULLSTACK;
+    return pick(stackHits);
+  }
+
+  return OTHER;
 }

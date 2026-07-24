@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BusinessUnit, Job, PRIORITY_LABELS, SENIORITY_LABELS, STATUS_LABELS, WORK_MODEL_LABELS } from "@/lib/jobs";
+import { LocationCombobox } from "@/components/LocationCombobox";
 import { useSaveJob } from "@/hooks/queries";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -77,7 +78,7 @@ export function JobFormDialog({ open, onOpenChange, bus, job, onSaved }: Props) 
         role_name: "",
         seniority: "mid",
         tech_stack: "",
-        location: "Lisbon, PT",
+        location: "Lisboa, PT",
         working_model: "hybrid",
         status: "open",
         is_urgent: true,
@@ -179,7 +180,7 @@ export function JobFormDialog({ open, onOpenChange, bus, job, onSaved }: Props) 
           </div>
           <div className="space-y-1.5">
             <Label>Location</Label>
-            <Input value={form.location} maxLength={120} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+            <LocationCombobox value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
           </div>
           <div className="space-y-1.5">
             <Label>Working Model</Label>

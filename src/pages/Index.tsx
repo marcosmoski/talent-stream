@@ -10,10 +10,11 @@ import { Inbox, LayoutDashboard, Search, Tv, Pause, BarChart3, Star, MapPin } fr
 import { familyFor } from "@/lib/roleFamilies";
 
 function jobFamily(job: Job) {
-  return familyFor([job.role_name, ...(job.tech_stack ?? [])].join(" "));
+  return familyFor(job.role_name, job.tech_stack ?? []);
 }
 function candidateFamily(c: Candidate) {
-  return familyFor([c.full_name, c.headline ?? "", ...(c.tech_stack ?? [])].join(" "));
+  // The headline carries the role ("Senior Java Developer"); the name never should.
+  return familyFor(c.headline ?? "", c.tech_stack ?? []);
 }
 
 export default function Index() {
