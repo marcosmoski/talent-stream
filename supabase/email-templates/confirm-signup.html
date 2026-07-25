@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /></head>
+  <body style="margin:0;padding:0;background:#111A2E;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Confirm your email to activate your PrimeIT Talent Stream account.</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#111A2E;padding:40px 16px;">
+      <tr><td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="width:480px;max-width:100%;background:#ffffff;border-radius:18px;overflow:hidden;">
+          <tr><td style="background:#111A2E;padding:30px 36px;border-bottom:3px solid #22A065;">
+            <div style="color:#22A065;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;">PrimeIT</div>
+            <div style="color:#ffffff;font-size:20px;font-weight:700;margin-top:4px;">Talent Stream</div>
+          </td></tr>
+          <tr><td style="padding:36px;">
+            <span style="display:inline-block;background:rgba(34,160,101,0.12);color:#22A065;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:999px;">Confirm email</span>
+            <h1 style="margin:18px 0 12px;font-size:24px;line-height:1.25;color:#111A2E;">Confirm your email</h1>
+            <p style="margin:0 0 26px;color:#4b5563;font-size:15px;line-height:1.65;">
+              Confirm <strong>{{ .Email }}</strong> to activate your PrimeIT Talent Stream account.
+            </p>
+            <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border-radius:12px;background:#22A065;">
+              <a href="{{ .ConfirmationURL }}" style="display:inline-block;color:#ffffff;font-weight:700;text-decoration:none;padding:14px 30px;border-radius:12px;font-size:15px;">
+                Confirm email &rarr;
+              </a>
+            </td></tr></table>
+            <p style="margin:28px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">
+              Or paste this link into your browser:<br />
+              <a href="{{ .ConfirmationURL }}" style="color:#22A065;word-break:break-all;font-size:12px;">{{ .ConfirmationURL }}</a>
+            </p>
+          </td></tr>
+          <tr><td style="padding:20px 36px;background:#f8fafc;border-top:1px solid #e5e7eb;">
+            <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">
+              If you didn't create this account, you can safely ignore this email.
+            </p>
+          </td></tr>
+        </table>
+        <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:20px;">© PrimeIT · Talent Stream</div>
+      </td></tr>
+    </table>
+  </body>
+</html>
