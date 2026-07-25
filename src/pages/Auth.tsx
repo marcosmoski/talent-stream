@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,17 +31,25 @@ const signupSchema = z.object({
   displayName: z.string().trim().max(100).optional(),
 });
 
+type Mode = "login" | "signup" | "reset";
+
+const TITLES: Record<Mode, string> = {
+  login: "Sign In · PrimeIT",
+  signup: "Create account · PrimeIT",
+  reset: "Reset password · PrimeIT",
+};
+
 export default function Auth() {
   const nav = useNavigate();
   const { user, loading, rolesLoading, isStaff, roles, roleError, signIn, signUp, signOut } = useAuth();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    document.title = mode === "login" ? "Sign In · PrimeIT" : "Create account · PrimeIT";
+    document.title = TITLES[mode];
   }, [mode]);
 
   // Redirect to /admin only after roles have loaded AND the user is staff,
@@ -52,6 +61,30 @@ export default function Auth() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Password recovery: send the email, no password field involved.
+    if (mode === "reset") {
+      const parsed = emailSchema.safeParse(email);
+      if (!parsed.success) {
+        toast.error(parsed.error.issues[0].message);
+        return;
+      }
+      setBusy(true);
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw new Error(error.message);
+        toast.success("If that email exists, a recovery link is on its way.");
+        setMode("login");
+      } catch (err: any) {
+        toast.error(err.message ?? "Could not send the recovery email");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
     const parsed = (mode === "login" ? loginSchema : signupSchema).safeParse({ email, password, displayName });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
@@ -74,6 +107,13 @@ export default function Auth() {
     }
   }
 
+  const heading = mode === "login" ? "Sign in" : mode === "signup" ? "Create account" : "Reset password";
+  const subtitle =
+    mode === "login" ? "Access the recruitment dashboard." :
+    mode === "signup" ? "Create a local dashboard account." :
+    "Enter your email and we'll send you a link to set a new password.";
+  const cta = mode === "login" ? "Sign in" : mode === "signup" ? "Create account" : "Send recovery link";
+
   return (
     <div className="grid min-h-screen overflow-hidden bg-background lg:grid-cols-[42%_58%]">
       <aside className="relative hidden overflow-hidden bg-primary text-primary-foreground lg:flex lg:flex-col lg:justify-between lg:p-14">
@@ -89,10 +129,8 @@ export default function Auth() {
 
       <main className="flex flex-col justify-center rounded-l-[2rem] bg-background px-6 py-12 shadow-elevated sm:px-12 lg:-ml-8">
         <div className="mx-auto w-full max-w-lg">
-          <h2 className="text-3xl font-bold">{mode === "login" ? "Sign in" : "Create account"}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "login" ? "Access the recruitment dashboard." : "Create a local dashboard account."}
-          </p>
+          <h2 className="text-3xl font-bold">{heading}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
 
           <form onSubmit={onSubmit} className="mt-10 space-y-5">
             {mode === "signup" && (
@@ -105,22 +143,39 @@ export default function Auth() {
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255} placeholder="you@primeit.pt" />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} maxLength={72} placeholder="••••••••" />
-            </div>
+            {mode !== "reset" && (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  {mode === "login" && (
+                    <button type="button" onClick={() => setMode("reset")} className="text-xs font-medium text-accent hover:underline">
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} maxLength={72} placeholder="••••••••" />
+              </div>
+            )}
             <Button type="submit" disabled={busy} className="h-12 w-full bg-accent text-accent-foreground hover:bg-accent/90">
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === "login" ? "Sign in" : "Create account"}
+              {cta}
               {!busy && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {mode === "login" ? "Need an account?" : "Already have an account?"}{" "}
-            <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="font-semibold text-accent hover:underline">
-              {mode === "login" ? "Sign up" : "Sign in"}
-            </button>
+            {mode === "reset" ? (
+              <button onClick={() => setMode("login")} className="font-semibold text-accent hover:underline">
+                Back to sign in
+              </button>
+            ) : (
+              <>
+                {mode === "login" ? "Need an account?" : "Already have an account?"}{" "}
+                <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="font-semibold text-accent hover:underline">
+                  {mode === "login" ? "Sign up" : "Sign in"}
+                </button>
+              </>
+            )}
           </p>
 
           {/* Diagnostic panel — shows current auth context so we can see why
